@@ -1,18 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philosophers.h                                     :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/02 09:44:58 by xlebecq          ###   ########.fr       */
+/*   Created: 2024/11/02 09:33:12 by xlebecq           #+#    #+#             */
+/*   Updated: 2024/11/02 16:11:59 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILOSOPHERS_H
-# define PHILOSOPHERS_H
+#include "philosophers.h"
 
-void	ft_error_msg(char *msg);
-
-#endif
+void	ft_error_msg(char *msg)
+{
+	while (*msg)
+		write(2, msg++, 1);
+}

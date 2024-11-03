@@ -1,18 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/02 09:37:26 by xlebecq          ###   ########.fr       */
+/*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
+/*   Updated: 2024/11/02 15:48:16 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	main(int argc, char **argv)
-{
-	if (argc < 4 || argc > 5)
-		ft_error_msg("Error : invalid number of arguments.\n");
-	return (0);
-}
+#ifndef PHILOSOPHERS_H
+# define PHILOSOPHERS_H
+
+# include <unistd.h>
+
+void	ft_error_msg(char *msg);
+
+#endif
