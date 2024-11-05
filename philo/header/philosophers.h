@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/03 17:20:36 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/04 11:09:49 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,20 @@
 # include <unistd.h>
 # include <pthread.h>
 # include <stdlib.h>
+# include <limits.h>
+# include <stdio.h>
+# include <stdint.h>
+
+typedef struct	s_dining_cfg
+{
+	int		number_of_philosophers;
+	uint64_t	time_to_die;
+	uint64_t	time_to_eat;
+	uint64_t	time_to_sleep;
+	int		nb_of_times_each_philosopher_must_eat;
+}	t_dining_cfg;
 
 void	ft_error_msg(const char *msg);
+int	ft_atoi(const char *str);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:33:12 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/04 06:40:42 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/04 08:21:08 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,37 +19,43 @@ void	ft_error_msg(const char *msg)
 	exit(EXIT_FAILURE);
 }
 
-int	ft_atoi(const char *nbr)
+void	ft_handle_sign(const char *str, int *i)
+{
+	while(str[*i] == ' ' || (str[*i] >= 9 && str[*i] <= 13))
+		(*i)++;
+	if (str[*i] == '-')
+		ft_error_msg("Error: argument must be a positive number.\n");
+	else if (str[*i] == '+')
+		(*i)++;
+}
+
+void	ft_overflow(long long result, int digit)
+{
+	if (result > (INT_MAX - digit) / 10)
+		ft_error_msg("Error: argument exceeds maximum integer value.\n");
+}
+
+int	ft_atoi(const char *str)
 {
 	int		i;
-	int		sign;
 	long long	result;
 	int		digit;
 
 	i = 0;
-	sign = 1;
 	result = 0;
-	ft_handle_sign(nbr, &i);
-	digit = nbr[i] - '0';
-	while (nbr[i] >= '0' && nbr[i] <= '9')
+	ft_handle_sign(str, &i);
+	while (str[i] >= '0' && str[i] <= '9')
 	{
-		(\ft_overflow(result, digit)
-			ft_error_msg("Error: argument is too large and causes overflow.\n");
-		result = result * 10 + (nbr[i] - '0')
-		if (result > INT_MAX)
+		digit = str[i] - '0';
+		ft_overflow(result, digit);
+		result = result * 10 + (str[i] - '0');
 		i++;
 	}
-	
-
-void	ft_handle_sign(char *nbr, int *i)
-{
-	while(nbr[*i] == ' ' || src[*i] >= 9 && src[*i] <= 13)
-		(*i)++;
-	if (nbr[*i] == '-')
-		ft_error_msg("Error: argument must be a positive number.\n");
-	else if (src[*i] == '+')
-		(*i)++;
-}
+if (str[i] != '\0')
+		ft_error_msg("Error : argument contains invalid characters.\n");
+	return ((int)(result));
+}	
 
 
-	
+
+
