@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/05 21:36:00 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/06 21:06:16 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ void	get_args(t_dining_cfg *dining_cfg, int argc, const char **argv)
 		|| dining_cfg->time_to_sleep < 60)
 		ft_error_msg("Error : time_to_die, time_to_eat, and\
  time_to_sleep must be at least 60ms.\n");
+	
 }
 
 int	main(int argc, const char **argv)

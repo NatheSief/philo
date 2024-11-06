@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/04 11:09:49 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/05 22:19:07 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,11 @@ typedef struct	s_dining_cfg
 	uint64_t	time_to_sleep;
 	int		nb_of_times_each_philosopher_must_eat;
 }	t_dining_cfg;
+
+typedef struc	s_philosophers
+{
+	int	id;
+}	t_philosophers
 
 void	ft_error_msg(const char *msg);
 int	ft_atoi(const char *str);
