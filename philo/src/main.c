@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/07 06:49:49 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/07 08:49:58 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ int	main(int argc, const char **argv)
 
 	get_args(&dining_cfg, argc, argv);
 	philosophers = (t_philosophers *)malloc(sizeof(t_philosophers *) * dining_cfg.number_of_philosophers);
+	philosophers = (t_philosophers *)malloc(sizeof(*philosophers) * dining_cfg.number_of_philosophers);
 /*	printf("number_of_philosophers = %d\ntime_to_die = %lu\n\
 time_to_eat = %lu\ntime_to_sleep = %lu\nnb_of_times_each_philosopher_must_eat =\
  %d\n", dining_cfg.number_of_philosophers, dining_cfg.time_to_die, \
