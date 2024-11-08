@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/07 18:45:34 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/07 20:42:52 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,14 @@ void	ft_init_philosophers(t_dining_cfg *dining_cfg)
 	int	i;
 
 	i = 0;
-	while (i < 5)
+	while (i < dining_cfg->number_of_philosophers)
 	{
 		dining_cfg->philosophers[i].id = i;
+		dining_cfg->philosophers[i].eating = 0;
 		dining_cfg->philosophers[i].l_fork = i;
-		dining_cfg->philosophers[i].r_fork = (i + 1);
+		dining_cfg->philosophers[i].r_fork = (i + 2) % dining_cfg->number_of_philosophers;
 		dining_cfg->philosophers[i].eat_count = 0;
-		printf("%d\n", dining_cfg->philosophers[i].id);
+		dining_cfg->philosophers[i].dining_cfg  = dining_cfg;
 		i++;
 	}
 }

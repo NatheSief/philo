@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/07 11:25:37 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/07 20:45:31 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,9 @@ typedef struct	s_dining_cfg
 	uint64_t		time_to_eat;
 	uint64_t		time_to_sleep;
 	int			nb_of_times_each_philosopher_must_eat;
-	pthread_mutex_t		*m_forks;
-	pthread_mutex_t		m_write;
-	pthread_mutex_t		m_dead;
+	pthread_mutex_t		*forks_mutex;
+	pthread_mutex_t		display_mutex;;
+	pthread_mutex_t		dead_mutex;
 }	t_dining_cfg;
 
 typedef struct	s_philosophers
@@ -45,8 +45,8 @@ typedef struct	s_philosophers
 	int		eat_count;
 	int		l_fork;
 	int		r_fork;
-	pthread_mutex_t	m_mutex;
-	pthread_mutex_t	m_eating;
+	pthread_mutex_t	mutex;
+	pthread_mutex_t	eating_mutex;
 }	t_philosophers;
 
 void	ft_error_msg(const char *msg);
