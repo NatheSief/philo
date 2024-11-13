@@ -6,7 +6,7 @@
 #    By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/02 09:45:51 by xlebecq           #+#    #+#              #
-#    Updated: 2024/11/03 15:18:47 by xlebecq          ###   ########.fr        #
+#    Updated: 2024/11/13 19:45:35 by xlebecq          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ C_FLAGS = -Wall -Wextra -Werror
 
 RM = rm -f
 
-LDFLAGS = -lpthread
+LDFLAGS = -pthread
 
 
 
