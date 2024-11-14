@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/07 20:45:31 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/14 19:11:40 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ typedef struct	s_dining_cfg
 	uint64_t		time_to_sleep;
 	int			nb_of_times_each_philosopher_must_eat;
 	pthread_mutex_t		*forks_mutex;
-	pthread_mutex_t		display_mutex;;
+	pthread_mutex_t		display_mutex;
 	pthread_mutex_t		dead_mutex;
 }	t_dining_cfg;
 

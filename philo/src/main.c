@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/09 00:54:22 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/14 19:17:52 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,25 @@ void	ft_init_philosophers(t_dining_cfg *dining_cfg)
 	}
 }
 
+void	ft_init_mutex(t_dining_cfg dining_cfg)
+{
+	int i;
+
+	i = 0;
+	while (i < dining_cfg->number_of_philosophers)
+	{
+		pthread_mutex_init(&dining_cfg->philosophers[i].mutex, NULL);
+		phtread_mutex_init(&dining_cfg->philosophers[i].eating_mutex, NULL);
+		phtread_mutex_lock(&dining_cfg->philosophers[i].eating_mutex);
+
+	}
+	dining_cfg->forks_mutex = (pthread_mutex_t *)malloc(sizeof(*(dining_cfg->forks_mutex)) * dining_cfg->number_of_philosophers);
+	pthread_mutex_init(&dining_cfg->display_mutex, NULL);
+	pthread_mutex_init(&dining_cfg->dead_mutex, NULL);
+	phtread_mutex_lock(&dining_cfg->dead_mutex);
+	
+}
+
 int	main(int argc, const char **argv)
 {
 	t_dining_cfg	dining_cfg;
@@ -61,10 +80,6 @@ int	main(int argc, const char **argv)
 	if (!dining_cfg.philosophers)
 		ft_error_msg("Error: Memory allocation failed for philosophers.\n");
 	ft_init_philosophers(&dining_cfg);
-	printf("number_of_philosophers = %d\ntime_to_die = %lu\n\
-time_to_eat = %lu\ntime_to_sleep = %lu\nnb_of_times_each_philosopher_must_eat =\
- %d\n", dining_cfg.number_of_philosophers, dining_cfg.time_to_die, \
-dining_cfg.time_to_eat, dining_cfg.time_to_sleep, \
-dining_cfg.nb_of_times_each_philosopher_must_eat);
+	ft_init_mutex(&dining_cfg);
 	return (0);
 }
