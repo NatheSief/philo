@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:33:12 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/04 08:21:08 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/14 22:46:09 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	ft_error_msg(const char *msg)
 
 void	ft_handle_sign(const char *str, int *i)
 {
-	while(str[*i] == ' ' || (str[*i] >= 9 && str[*i] <= 13))
+	while (str[*i] == ' ' || (str[*i] >= 9 && str[*i] <= 13))
 		(*i)++;
 	if (str[*i] == '-')
 		ft_error_msg("Error: argument must be a positive number.\n");
@@ -37,9 +37,9 @@ void	ft_overflow(long long result, int digit)
 
 int	ft_atoi(const char *str)
 {
-	int		i;
+	int			i;
 	long long	result;
-	int		digit;
+	int			digit;
 
 	i = 0;
 	result = 0;
@@ -51,11 +51,7 @@ int	ft_atoi(const char *str)
 		result = result * 10 + (str[i] - '0');
 		i++;
 	}
-if (str[i] != '\0')
+	if (str[i] != '\0')
 		ft_error_msg("Error : argument contains invalid characters.\n");
 	return ((int)(result));
-}	
-
-
-
-
+}

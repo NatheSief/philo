@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/14 19:11:40 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/14 22:48:33 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,36 +20,36 @@
 # include <stdio.h>
 # include <stdint.h>
 
-struct s_sphilosophers;
+struct	s_sphilosophers;
 
-typedef struct	s_dining_cfg
+typedef struct s_dining_cfg
 {
 	struct s_philosophers	*philosophers;
-	int			number_of_philosophers;
-	uint64_t		time_to_die;
-	uint64_t		time_to_eat;
-	uint64_t		time_to_sleep;
-	int			nb_of_times_each_philosopher_must_eat;
-	pthread_mutex_t		*forks_mutex;
-	pthread_mutex_t		display_mutex;
-	pthread_mutex_t		dead_mutex;
+	int						nb_of_philosophers;
+	uint64_t				time_to_die;
+	uint64_t				time_to_eat;
+	uint64_t				time_to_sleep;
+	int						nb_of_times_each_philosopher_must_eat;
+	pthread_mutex_t			*forks_mutex;
+	pthread_mutex_t			display_mutex;
+	pthread_mutex_t			dead_mutex;
 }	t_dining_cfg;
 
-typedef struct	s_philosophers
+typedef struct s_philosophers
 {
-	t_dining_cfg	*dining_cfg;
-	int		id;
-	uint64_t	time_since_eat;
-	int		eating;
-	uint64_t	time_limit;
-	int		eat_count;
-	int		l_fork;
-	int		r_fork;
+	t_dining_cfg	*s;
+	int				id;
+	uint64_t		time_since_eat;
+	int				eating;
+	uint64_t		time_limit;
+	int				eat_count;
+	int				l_fork;
+	int				r_fork;
 	pthread_mutex_t	mutex;
 	pthread_mutex_t	eating_mutex;
 }	t_philosophers;
 
 void	ft_error_msg(const char *msg);
-int	ft_atoi(const char *str);
+int		ft_atoi(const char *str);
 
 #endif
