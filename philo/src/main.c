@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/14 22:44:23 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/15 03:41:54 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,35 @@ s->nb_of_philosophers);
 	pthread_mutex_init(&s->dead_mutex, NULL);
 	pthread_mutex_lock(&s->dead_mutex);
 }
+
+void	ft_free(t_dining_cfg *s)
+{
+	int	i;
+
+	i = 0;
+	if (s->forks_mutex)
+	{
+		while (i < s->nb_of_philosophers)
+		{
+			pthread_mutex_destroy(&s->forks_mutex[i];
+			i++;
+		}
+		free(s->forks_mutex);
+	}
+	i = 0;
+	if (s->philosophers)
+	{
+		while (i < s->nb_of_philosophers)
+		{
+			pthread_mutex_destroy(&s->philosophers[i].mutex);
+			pthread_mutex_destroy(&s->philosophers[i].eating_mutex);
+		}
+		free (s->philosophers);
+	}
+	pthread_mutex_destroy(&s->display_mutex);
+	pthread_mutex_destroy(&s->dead_mutex);
+}
+	
 
 int	main(int argc, const char **argv)
 {
