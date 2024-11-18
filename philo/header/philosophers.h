@@ -6,12 +6,16 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/14 22:48:33 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/18 02:37:03 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILOSOPHERS_H
 # define PHILOSOPHERS_H
+
+/*----------------------------------------------------------------------------*/
+/*							         INCLUDES                                 */
+/*----------------------------------------------------------------------------*/
 
 # include <unistd.h>
 # include <pthread.h>
@@ -19,8 +23,11 @@
 # include <limits.h>
 # include <stdio.h>
 # include <stdint.h>
+# include <sys/time.h>
 
-struct	s_sphilosophers;
+/*----------------------------------------------------------------------------*/
+/*									STRUCTURES								  */
+/*----------------------------------------------------------------------------*/
 
 typedef struct s_dining_cfg
 {
@@ -29,6 +36,7 @@ typedef struct s_dining_cfg
 	uint64_t				time_to_die;
 	uint64_t				time_to_eat;
 	uint64_t				time_to_sleep;
+	uint64_t				time;
 	int						nb_of_times_each_philosopher_must_eat;
 	pthread_mutex_t			*forks_mutex;
 	pthread_mutex_t			display_mutex;
@@ -49,7 +57,13 @@ typedef struct s_philosophers
 	pthread_mutex_t	eating_mutex;
 }	t_philosophers;
 
-void	ft_error_msg(const char *msg);
-int		ft_atoi(const char *str);
+/*----------------------------------------------------------------------------*/
+/*						    		FUNCTIONS                                 */
+/*----------------------------------------------------------------------------*/
+
+void		ft_error_msg(const char *msg, t_dining_cfg *s, int i);
+int			ft_atoi(const char *str);
+uint64_t	ft_time();
+void		ft_free(t_dining_cfg *s, int mutex);
 
 #endif
