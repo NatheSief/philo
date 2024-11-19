@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/18 02:35:53 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/19 00:12:02 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 
 void	ft_get_args(t_dining_cfg *s, int argc, const char **argv)
 {
-	if (argc < 5 || argc > 6)
+	if (argc != 5 && argc != 6)
 		ft_error_msg("Error : invalid number of arguments.\n", NULL, 0);
 	s->nb_of_philosophers = ft_atoi(argv[1]);
 	s->time_to_die = ft_atoi(argv[2]);
 	s->time_to_eat = ft_atoi(argv[3]);
 	s->time_to_sleep = ft_atoi(argv[4]);
-	if (argc == 6)
+	if (argv[5])
 		s->nb_of_times_each_philosopher_must_eat = ft_atoi(argv[5]);
 	else
 		s->nb_of_times_each_philosopher_must_eat = 0;
@@ -66,15 +66,22 @@ s->nb_of_philosophers);
 		ft_error_msg("Error: Memory allocation failed for mutex.\n", s, 0);
 	while (i < s->nb_of_philosophers)
 	{	
-		pthread_mutex_init(&s->forks_mutex[i], NULL);
-		pthread_mutex_init(&s->philosophers[i].mutex, NULL);
-		pthread_mutex_init(&s->philosophers[i].eating_mutex, NULL);
-		pthread_mutex_lock(&s->philosophers[i].eating_mutex);
+		if (pthread_mutex_init(&s->forks_mutex[i], NULL) != 0)
+			ft_error_msg("Error: Failed to initialize forks_mutex", s, 1);
+		if (pthread_mutex_init(&s->philosophers[i].mutex, NULL) != 0)
+			ft_error_msg("Error: Failed to initialize mutex", s, 1);
+		if (pthread_mutex_init(&s->philosophers[i].eating_mutex, NULL) != 0)
+			ft_error_msg("Error: Failed to initialize eating_mutex", s, 1);
+		if (pthread_mutex_lock(&s->philosophers[i].eating_mutex) != 0)
+			ft_error_msg("Error: Failed to lock eating_mutex", s, 1);
 		i++;
 	}
-	pthread_mutex_init(&s->display_mutex, NULL);
-	pthread_mutex_init(&s->dead_mutex, NULL);
-	pthread_mutex_lock(&s->dead_mutex);
+	if (pthread_mutex_init(&s->display_mutex, NULL) != 0)
+		ft_error_msg("Error: Failed to initialize display_mutex", s, 1);
+	if (pthread_mutex_init(&s->dead_mutex, NULL) != 0)
+		ft_error_msg("Error: Failed to initialize dead_mutex", s, 1);
+	if (pthread_mutex_lock(&s->dead_mutex) != 0)
+		ft_error_msg("Error: Failed to lock dead_mutex", s, 1);
 }
 
 void	ft_free(t_dining_cfg *s, int mutex)
@@ -82,6 +89,8 @@ void	ft_free(t_dining_cfg *s, int mutex)
 	int	i;
 
 	i = 0;
+	if (!s)
+		return ;
 	if (s->forks_mutex)
 	{
 		while (i < s->nb_of_philosophers)
@@ -115,14 +124,16 @@ uint64_t	ft_time(void)
 	static struct timeval	current_time;
 
 	gettimeofday(&current_time, NULL);
-	return (((uint64_t)(current_time.tv_sec) * 1000) + \
-((uint64_t)(current_time.tv_usec) * 1000));
+	return (((uint64_t)(current_time.tv_sec) * 1000)
+		+ ((uint64_t)(current_time.tv_usec) * 1000));
 }
 
-int	main(int argc, const char **argv)
+int	main(int argc, const char **argv, char **envp)
 {
 	t_dining_cfg	s;
 
+	if (!envp || !envp[0])
+		ft_error_msg("Error: Environnement variables are missing.\n", NULL, 0);
 	ft_get_args(&s, argc, argv);
 	ft_init_philosophers(&s);
 	ft_init_mutex(&s);

@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/18 02:37:03 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/18 11:52:26 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ typedef struct s_philosophers
 
 void		ft_error_msg(const char *msg, t_dining_cfg *s, int i);
 int			ft_atoi(const char *str);
-uint64_t	ft_time();
+uint64_t	ft_time(void);
 void		ft_free(t_dining_cfg *s, int mutex);
 
 #endif
