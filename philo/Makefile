@@ -6,7 +6,7 @@
 #    By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/02 09:45:51 by xlebecq           #+#    #+#              #
-#    Updated: 2024/11/13 19:45:35 by xlebecq          ###   ########.fr        #
+#    Updated: 2024/11/19 16:01:05 by xlebecq          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ LDFLAGS = -pthread
 
 HEADER_DIR = ./header/
 
-SRCS_DIR = ./src/
+SRCS_DIR = ./srcs/
 
 OBJS_DIR = objs/
 

@@ -6,17 +6,17 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:33:12 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/19 14:46:44 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/19 16:24:26 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-void	ft_error_msg(const char *msg, t_cfg *s, int i)
+void	ft_error_msg(const char *msg, t_cfg *s)
 {
 	while (*msg)
 		write(2, msg++, 1);
-	ft_free(s, i);
+	ft_free_array(s);
 	exit(EXIT_FAILURE);
 }
 
@@ -25,7 +25,7 @@ void	ft_handle_sign(const char *str, int *i)
 	while (str[*i] == ' ' || (str[*i] >= 9 && str[*i] <= 13))
 		(*i)++;
 	if (str[*i] == '-')
-		ft_error_msg("Error: argument must be a positive number.\n", NULL, 0);
+		ft_error_msg(ERROR12, NULL);
 	else if (str[*i] == '+')
 		(*i)++;
 }
@@ -33,8 +33,7 @@ void	ft_handle_sign(const char *str, int *i)
 void	ft_overflow(long long result, int digit)
 {
 	if (result > (INT_MAX - digit) / 10)
-		ft_error_msg("Error: argument exceeds maximum integer value.\n", \
-NULL, 0);
+		ft_error_msg(ERROR13, NULL);
 }
 
 int	ft_atoi(const char *str)
@@ -54,6 +53,7 @@ int	ft_atoi(const char *str)
 		i++;
 	}
 	if (str[i] != '\0')
-		ft_error_msg("Error : argument contains invalid characters.\n", NULL, 0);
+		ft_error_msg(ERROR14, NULL);
+
 	return ((int)(result));
 }
