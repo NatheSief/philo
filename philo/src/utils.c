@@ -6,13 +6,13 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:33:12 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/18 00:54:35 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/19 14:46:44 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-void	ft_error_msg(const char *msg, t_dining_cfg *s, int i)
+void	ft_error_msg(const char *msg, t_cfg *s, int i)
 {
 	while (*msg)
 		write(2, msg++, 1);

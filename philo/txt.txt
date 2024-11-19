@@ -1,0 +1,345 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
+/*   Updated: 2024/11/19 14:44:44 by xlebecq          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philosophers.h"
+
+void	ft_get_args(t_cfg *s, int argc, const char **argv)
+{
+	if (argc != 5 && argc != 6)
+		ft_error_msg(ERROR0, NULL, 0);
+	s->nb_philo = ft_atoi(argv[1]);
+	s->time_to_die = ft_atoi(argv[2]);
+	s->time_to_eat = ft_atoi(argv[3]);
+	s->time_to_sleep = ft_atoi(argv[4]);
+	if (argv[5])
+		s->meals_required = ft_atoi(argv[5]);
+	else
+		s->meals_required = 0;
+	if (s->nb_philo < 1 || s->nb_philo > 200)
+		ft_error_msg(ERROR1, NULL, 0);
+	if (s->time_to_die < 60 || s->time_to_eat < 60 || s->time_to_sleep < 60)
+		ft_error_msg(ERROR2, NULL, 0);
+}
+
+void	ft_init_philo(t_cfg *s)
+{
+	int	i;
+
+	i = 0;
+	s->philo = NULL;
+	s->philo = (t_philo *)malloc(sizeof(*(s->philo)) * \
+s->nb_philo);
+	if (!s->philo)
+		ft_error_msg(ERROR3, NULL, 0);
+	while (i < s->nb_philo)
+	{
+		s->philo[i].id = i;
+		s->philo[i].eating = 0;
+		s->philo[i].l_fork = i;
+		s->philo[i].r_fork = (i + 1) % s->nb_philo;
+		s->philo[i].eat_count = 0;
+		s->philo[i].s = s;
+		i++;
+	}
+}
+
+void	ft_init_mutex(t_cfg *s)
+{
+	int	i;
+
+	i = 0;
+	s->forks_mutex = (pthread_mutex_t *)malloc(sizeof(*(s->forks_mutex)) * \
+s->nb_philo);
+	if (!s->forks_mutex)
+		ft_error_msg(ERROR4, s, 0);
+	while (i < s->nb_philo)
+	{	
+		if (pthread_mutex_init(&s->forks_mutex[i], NULL) != 0)
+			ft_error_msg(ERROR5, s, 1);
+		if (pthread_mutex_init(&s->philo[i].mutex, NULL) != 0)
+			ft_error_msg(ERROR6, s, 1);
+		if (pthread_mutex_init(&s->philo[i].eating_mutex, NULL) != 0)
+			ft_error_msg(ERROR7, s, 1);
+		if (pthread_mutex_lock(&s->philo[i].eating_mutex) != 0)
+			ft_error_msg(ERROR8, s, 1);
+		i++;
+	}
+	if (pthread_mutex_init(&s->display_mutex, NULL) != 0)
+		ft_error_msg(ERROR9, s, 1);
+	if (pthread_mutex_init(&s->dead_mutex, NULL) != 0)
+		ft_error_msg(ERROR10, s, 1);
+	if (pthread_mutex_lock(&s->dead_mutex) != 0)
+		ft_error_msg(ERROR11, s, 1);
+}
+
+void	ft_free(t_cfg *s, int mutex)
+{
+	int	i;
+
+	i = 0;
+	if (!s)
+		return ;
+	if (s->forks_mutex)
+	{
+		while (i < s->nb_philo)
+			pthread_mutex_destroy(&s->forks_mutex[i++]);
+		free(s->forks_mutex);
+	}
+	i = 0;
+	if (s->philo)
+	{
+		while (i < s->nb_philo)
+		{
+			pthread_mutex_destroy(&s->philo[i].mutex);
+			pthread_mutex_destroy(&s->philo[i++].eating_mutex);
+		}
+		free (s->philo);
+	}
+	if (mutex == 1)
+	{
+		pthread_mutex_destroy(&s->display_mutex);
+		pthread_mutex_destroy(&s->dead_mutex);
+	}
+}
+
+void	ft_create_threads(t_cfg *s)
+{
+	s->time = ft_time();
+}
+
+uint64_t	ft_time(void)
+{
+	static struct timeval	current_time;
+
+	gettimeofday(&current_time, NULL);
+	return (((uint64_t)(current_time.tv_sec) * 1000)
+		+ ((uint64_t)(current_time.tv_usec) * 1000));
+}
+
+int	main(int argc, const char **argv, char **envp)
+{
+	t_cfg	s;
+
+	if (!envp || !envp[0])
+		ft_error_msg(ERROR12, NULL, 0);
+	ft_get_args(&s, argc, argv);
+	ft_init_philo(&s);
+	ft_init_mutex(&s);
+	ft_create_threads(&s);
+	ft_free(&s, 1);
+	return (0);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/02 09:33:12 by xlebecq           #+#    #+#             */
+/*   Updated: 2024/11/19 14:46:44 by xlebecq          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philosophers.h"
+
+void	ft_error_msg(const char *msg, t_cfg *s, int i)
+{
+	while (*msg)
+		write(2, msg++, 1);
+	ft_free(s, i);
+	exit(EXIT_FAILURE);
+}
+
+void	ft_handle_sign(const char *str, int *i)
+{
+	while (str[*i] == ' ' || (str[*i] >= 9 && str[*i] <= 13))
+		(*i)++;
+	if (str[*i] == '-')
+		ft_error_msg("Error: argument must be a positive number.\n", NULL, 0);
+	else if (str[*i] == '+')
+		(*i)++;
+}
+
+void	ft_overflow(long long result, int digit)
+{
+	if (result > (INT_MAX - digit) / 10)
+		ft_error_msg("Error: argument exceeds maximum integer value.\n", \
+NULL, 0);
+}
+
+int	ft_atoi(const char *str)
+{
+	int			i;
+	long long	result;
+	int			digit;
+
+	i = 0;
+	result = 0;
+	ft_handle_sign(str, &i);
+	while (str[i] >= '0' && str[i] <= '9')
+	{
+		digit = str[i] - '0';
+		ft_overflow(result, digit);
+		result = result * 10 + (str[i] - '0');
+		i++;
+	}
+	if (str[i] != '\0')
+		ft_error_msg("Error : argument contains invalid characters.\n", NULL, 0);
+	return ((int)(result));
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philosophers.h                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
+/*   Updated: 2024/11/19 14:45:00 by xlebecq          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef PHILOSOPHERS_H
+# define PHILOSOPHERS_H
+
+/*----------------------------------------------------------------------------*/
+/*							         INCLUDES                                 */
+/*----------------------------------------------------------------------------*/
+
+# include <unistd.h>
+# include <pthread.h>
+# include <stdlib.h>
+# include <limits.h>
+# include <stdio.h>
+# include <stdint.h>
+# include <sys/time.h>
+
+# define ERROR0 	"Error: Invalid number of arguments.\n"
+# define ERROR1 	"Error: Nb of philosophers must beetween 1 and 200.\n"
+# define ERROR2 	"Error: time_to_die, time_to_eat, and time_to_sleep must be at least 60ms.\n"
+# define ERROR3 	"Error: Memory allocation failed for philosophers.\n"
+# define ERROR4 	"Error: Memory allocation failed for forks_mutex.\n"
+# define ERROR5		"Error: Failed to initialize forks_mutex.\n"
+# define ERROR6		"Error: Failed to initialize mutex mutex.\n"
+# define ERROR7		"Error: Failed to initialize eating_mutex.\n"
+# define ERROR8		"Error: Failed to lock eating_mutex.\n"
+# define ERROR9 	"Error: Failed to initialize display_mutex.\n"
+# define ERROR10 	"Error: Failed to initialize dead_mutex.\n"
+# define ERROR11	"Error: Failed to lock dead_mutex.\n"
+# define ERROR12	"Error: Environnement variables are missing.\n"
+
+/*----------------------------------------------------------------------------*/
+/*									STRUCTURES								  */
+/*----------------------------------------------------------------------------*/
+
+typedef struct s_cfg
+{
+	struct s_philo			*philo;
+	int						nb_philo;
+	uint64_t				time_to_die;
+	uint64_t				time_to_eat;
+	uint64_t				time_to_sleep;
+	uint64_t				time;
+	int						meals_required;
+	pthread_mutex_t			*forks_mutex;
+	pthread_mutex_t			display_mutex;
+	pthread_mutex_t			dead_mutex;
+}	t_cfg;
+
+typedef struct s_philo
+{
+	t_cfg	*s;
+	int				id;
+	uint64_t		time_since_eat;
+	int				eating;
+	uint64_t		time_limit;
+	int				eat_count;
+	int				l_fork;
+	int				r_fork;
+	pthread_mutex_t	mutex;
+	pthread_mutex_t	eating_mutex;
+}	t_philo;
+
+/*----------------------------------------------------------------------------*/
+/*						    		FUNCTIONS                                 */
+/*----------------------------------------------------------------------------*/
+
+void		ft_error_msg(const char *msg, t_cfg *s, int i);
+int			ft_atoi(const char *str);
+uint64_t	ft_time(void);
+void		ft_free(t_cfg *s, int mutex);
+
+#endif
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/11/02 09:45:51 by xlebecq           #+#    #+#              #
+#    Updated: 2024/11/13 19:45:35 by xlebecq          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+NAME = philo
+
+CC = clang
+
+C_FLAGS = -Wall -Wextra -Werror
+
+RM = rm -f
+
+LDFLAGS = -pthread
+
+
+
+HEADER_DIR = ./header/
+
+SRCS_DIR = ./src/
+
+OBJS_DIR = objs/
+
+
+
+C_FILES = main.c utils.c
+
+SRCS = $(addprefix $(SRCS_DIR), $(C_FILES))
+
+OBJS = $(addprefix $(OBJS_DIR), $(C_FILES:.c=.o))
+
+INCLUDES = -I$(HEADER_DIR)
+
+
+
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	$(CC) $(C_FLAGS) $(OBJS) -o $(NAME) $(INCLUDES) $(LDFLAGS)
+
+$(OBJS_DIR)%.o: $(SRCS_DIR)%.c | $(OBJS_DIR)
+	$(CC) $(C_FLAGS) -c $< -o $@ $(INCLUDES) 
+
+$(OBJS_DIR):
+	mkdir -p $(OBJS_DIR)
+
+clean:
+	$(RM) -r  $(OBJS_DIR)
+
+fclean: clean
+	$(RM) $(NAME)
+
+re: fclean all
+
+.PHONY: all clean fclean re
+

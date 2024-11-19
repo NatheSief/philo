@@ -6,106 +6,103 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/19 00:12:02 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/19 14:59:19 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-void	ft_get_args(t_dining_cfg *s, int argc, const char **argv)
+void	ft_get_args(t_cfg *s, int argc, const char **argv)
 {
 	if (argc != 5 && argc != 6)
-		ft_error_msg("Error : invalid number of arguments.\n", NULL, 0);
-	s->nb_of_philosophers = ft_atoi(argv[1]);
+		ft_error_msg(ERROR0, NULL, 0);
+	s->nb_philo = ft_atoi(argv[1]);
 	s->time_to_die = ft_atoi(argv[2]);
 	s->time_to_eat = ft_atoi(argv[3]);
 	s->time_to_sleep = ft_atoi(argv[4]);
 	if (argv[5])
-		s->nb_of_times_each_philosopher_must_eat = ft_atoi(argv[5]);
+		s->meals_required = ft_atoi(argv[5]);
 	else
-		s->nb_of_times_each_philosopher_must_eat = 0;
-	if (s->nb_of_philosophers < 1 || s->nb_of_philosophers > 200)
-		ft_error_msg("Error: Nb of philosophers must beetween 1 and 200.\n", \
-NULL, 0);
+		s->meals_required = 0;
+	if (s->nb_philo < 1 || s->nb_philo > 200)
+		ft_error_msg(ERROR1, NULL, 0);
 	if (s->time_to_die < 60 || s->time_to_eat < 60 || s->time_to_sleep < 60)
-		ft_error_msg("Error : time_to_die, time_to_eat, and\
- time_to_sleep must be at least 60ms.\n", NULL, 0);
+		ft_error_msg(ERROR2, NULL, 0);
 }
 
-void	ft_init_philosophers(t_dining_cfg *s)
+void	ft_init_philo(t_cfg *s)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
-	s->philosophers = NULL;
-	s->philosophers = (t_philosophers *)malloc(sizeof(*(s->philosophers)) * \
-s->nb_of_philosophers);
-	if (!s->philosophers)
-		ft_error_msg("Error: Memory allocation failed for philosophers.\n", \
-NULL, 0);
-	while (i < s->nb_of_philosophers)
+	s->philo = NULL;
+	s->philo = (t_philo *)malloc(sizeof(*(s->philo)) * \
+s->nb_philo);
+	if (!s->philo)
+		ft_error_msg(ERROR3, NULL, 0);
+	while (i < s->nb_philo)
 	{
-		s->philosophers[i].id = i;
-		s->philosophers[i].eating = 0;
-		s->philosophers[i].l_fork = i;
-		s->philosophers[i].r_fork = (i + 1) % s->nb_of_philosophers;
-		s->philosophers[i].eat_count = 0;
-		s->philosophers[i].s = s;
+		s->philo[i].id = i;
+		s->philo[i].eating = 0;
+		s->philo[i].l_fork = i;
+		s->philo[i].r_fork = (i + 1) % s->nb_philo;
+		s->philo[i].eat_count = 0;
+		s->philo[i].s = s;
 		i++;
 	}
 }
 
-void	ft_init_mutex(t_dining_cfg *s)
+void	ft_init_mutex(t_cfg *s)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	s->forks_mutex = (pthread_mutex_t *)malloc(sizeof(*(s->forks_mutex)) * \
-s->nb_of_philosophers);
+s->nb_philo);
 	if (!s->forks_mutex)
-		ft_error_msg("Error: Memory allocation failed for mutex.\n", s, 0);
-	while (i < s->nb_of_philosophers)
+		ft_error_msg(ERROR4, s, 0);
+	while (i < s->nb_philo)
 	{	
 		if (pthread_mutex_init(&s->forks_mutex[i], NULL) != 0)
-			ft_error_msg("Error: Failed to initialize forks_mutex", s, 1);
-		if (pthread_mutex_init(&s->philosophers[i].mutex, NULL) != 0)
-			ft_error_msg("Error: Failed to initialize mutex", s, 1);
-		if (pthread_mutex_init(&s->philosophers[i].eating_mutex, NULL) != 0)
-			ft_error_msg("Error: Failed to initialize eating_mutex", s, 1);
-		if (pthread_mutex_lock(&s->philosophers[i].eating_mutex) != 0)
-			ft_error_msg("Error: Failed to lock eating_mutex", s, 1);
+			ft_error_msg(ERROR5, s, 1);
+		if (pthread_mutex_init(&s->philo[i].mutex, NULL) != 0)
+			ft_error_msg(ERROR6, s, 1);
+		if (pthread_mutex_init(&s->philo[i].eating_mutex, NULL) != 0)
+			ft_error_msg(ERROR7, s, 1);
+		if (pthread_mutex_lock(&s->philo[i].eating_mutex) != 0)
+			ft_error_msg(ERROR8, s, 1);
 		i++;
 	}
 	if (pthread_mutex_init(&s->display_mutex, NULL) != 0)
-		ft_error_msg("Error: Failed to initialize display_mutex", s, 1);
+		ft_error_msg(ERROR9, s, 1);
 	if (pthread_mutex_init(&s->dead_mutex, NULL) != 0)
-		ft_error_msg("Error: Failed to initialize dead_mutex", s, 1);
+		ft_error_msg(ERROR10, s, 1);
 	if (pthread_mutex_lock(&s->dead_mutex) != 0)
-		ft_error_msg("Error: Failed to lock dead_mutex", s, 1);
+		ft_error_msg(ERROR11, s, 1);
 }
 
-void	ft_free(t_dining_cfg *s, int mutex)
+void	ft_free(t_cfg *s, int mutex)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	if (!s)
 		return ;
 	if (s->forks_mutex)
 	{
-		while (i < s->nb_of_philosophers)
+		while (i < s->nb_philo)
 			pthread_mutex_destroy(&s->forks_mutex[i++]);
 		free(s->forks_mutex);
 	}
 	i = 0;
-	if (s->philosophers)
+	if (s->philo)
 	{
-		while (i < s->nb_of_philosophers)
+		while (i < s->nb_philo)
 		{
-			pthread_mutex_destroy(&s->philosophers[i].mutex);
-			pthread_mutex_destroy(&s->philosophers[i++].eating_mutex);
+			pthread_mutex_destroy(&s->philo[i].mutex);
+			pthread_mutex_destroy(&s->philo[i++].eating_mutex);
 		}
-		free (s->philosophers);
+		free (s->philo);
 	}
 	if (mutex == 1)
 	{
@@ -114,28 +111,26 @@ void	ft_free(t_dining_cfg *s, int mutex)
 	}
 }
 
-void	ft_create_threads(t_dining_cfg *s)
+void	ft_create_threads(t_cfg *s)
 {
 	s->time = ft_time();
 }
 
 uint64_t	ft_time(void)
 {
-	static struct timeval	current_time;
+	struct timeval	current_time;
 
 	gettimeofday(&current_time, NULL);
 	return (((uint64_t)(current_time.tv_sec) * 1000)
-		+ ((uint64_t)(current_time.tv_usec) * 1000));
+		+ ((uint64_t)(current_time.tv_usec) / 1000));
 }
 
 int	main(int argc, const char **argv, char **envp)
 {
-	t_dining_cfg	s;
+	t_cfg	s;
 
-	if (!envp || !envp[0])
-		ft_error_msg("Error: Environnement variables are missing.\n", NULL, 0);
 	ft_get_args(&s, argc, argv);
-	ft_init_philosophers(&s);
+	ft_init_philo(&s);
 	ft_init_mutex(&s);
 	ft_create_threads(&s);
 	ft_free(&s, 1);
