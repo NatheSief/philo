@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:33:12 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/19 16:24:26 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/19 19:13:23 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	ft_handle_sign(const char *str, int *i)
 	while (str[*i] == ' ' || (str[*i] >= 9 && str[*i] <= 13))
 		(*i)++;
 	if (str[*i] == '-')
-		ft_error_msg(ERROR12, NULL);
+		ft_error_msg(ERROR_NEGATIVE_ARGS, NULL);
 	else if (str[*i] == '+')
 		(*i)++;
 }
@@ -33,7 +33,7 @@ void	ft_handle_sign(const char *str, int *i)
 void	ft_overflow(long long result, int digit)
 {
 	if (result > (INT_MAX - digit) / 10)
-		ft_error_msg(ERROR13, NULL);
+		ft_error_msg(ERROR_OVERFLOW, NULL);
 }
 
 int	ft_atoi(const char *str)
@@ -53,7 +53,6 @@ int	ft_atoi(const char *str)
 		i++;
 	}
 	if (str[i] != '\0')
-		ft_error_msg(ERROR14, NULL);
-
+		ft_error_msg(ERROR_INVALID_CHARACTERS, NULL);
 	return ((int)(result));
 }
