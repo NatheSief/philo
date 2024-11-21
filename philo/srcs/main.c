@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/19 19:12:55 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/21 18:08:12 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ void	ft_free_array(t_cfg *s)
 	{
 		while (i < s->nb_philo)
 		{
+			printf("FREE\n");
 			pthread_mutex_destroy(&s->philo[i].mutex);
 			pthread_mutex_destroy(&s->philo[i++].eating_mutex);
 		}
@@ -127,7 +128,8 @@ void	ft_create_threads(t_cfg *s)
 	}
 	while (i < s->nb_philo)
 	{
-		if (pthread_create(&tid, NULL, &ft_start_routine, (void *)&s->philo[i++]) != 0)
+		if (pthread_create(&tid, NULL, &ft_start_routine, \
+	(void *)&s->philo[i++]) != 0)
 			ft_error_msg(ERROR_START_ROUTINE_CREATE, s);
 		pthread_detach(tid);
 		usleep(100);
@@ -136,15 +138,47 @@ void	ft_create_threads(t_cfg *s)
 
 void	*ft_meals_monitor(void *s)
 {
-	(void)s;
-	printf("TEST MEAL");
+	t_cfg	*cfg;
+	size_t	i;
+	size_t	nb_meals;
+
+
+	cfg = (t_cfg *)s;
+	i = 0;
+	nb_meals = 0;
+	while (nb_meals < cfg->meals_required)
+	{
+		i = 0;
+		while (i < cfg->nb_philo)
+		{
+			pthread_mutex_lock(&cfg->philo[i].eating_mutex);
+			i++;
+		}
+	}
+	pthread_mutex_unlock(&cfg->dead_mutex);
 	return (NULL);
 }
 
 void	*ft_start_routine(void *s)
 {
-	(void)s;
-	printf("TEST ROUTINE");
+	t_philo	*philo;
+	size_t	meals_eaten = 0;
+
+	philo = (t_philo *)s;
+
+	while (meals_eaten < philo->s->meals_required)
+	{
+		// Le philosophe déverrouille son eating_mutex pour indiquer qu'il a mangé
+		pthread_mutex_unlock(&philo->eating_mutex);
+
+		printf("Philosophe %d mange\n", philo->id);
+		usleep(philo->s->time_to_eat * 1000); // Simuler le temps pour manger
+
+		// Verrouiller à nouveau le mutex pour attendre le prochain repas
+		pthread_mutex_lock(&philo->eating_mutex);
+
+		meals_eaten++;
+	}
 	return (NULL);
 }
 
@@ -165,6 +199,9 @@ int	main(int argc, const char **argv)
 	ft_init_philo(&s);
 	ft_init_mutex(&s);
 	ft_create_threads(&s);
+	pthread_mutex_lock(&s.dead_mutex);
+	pthread_mutex_unlock(&s.dead_mutex);
 	ft_free_array(&s);
+	ft_destroy_mutex(&s);
 	return (0);
 }
