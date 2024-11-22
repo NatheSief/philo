@@ -15,7 +15,7 @@
 void	ft_parse_args(t_cfg *s, int argc, const char **argv)
 {
 	if (argc != 5 && argc != 6)
-		ft_error_msg(ERROR_ARGS, NULL);
+		ft_error_msg(ERROR_ARGS);
 	s->nb_philo = ft_atoi(argv[1]);
 	s->time_to_die = ft_atoi(argv[2]);
 	s->time_to_eat = ft_atoi(argv[3]);
@@ -25,30 +25,30 @@ void	ft_parse_args(t_cfg *s, int argc, const char **argv)
 	else
 		s->meals_required = 0;
 	if (s->nb_philo < 1 || s->nb_philo > 200)
-		ft_error_msg(ERROR_NB_PHILO, NULL);
+		ft_error_msg(ERROR_NB_PHILO);
 	if (s->time_to_die < 60 || s->time_to_eat < 60 || s->time_to_sleep < 60)
-		ft_error_msg(ERROR_LIMIT_ARGS, NULL);
+		ft_error_msg(ERROR_LIMIT_ARGS);
+	s->time = 0;
+	s->over = 0;
+	s->ready = 0;
 }
 
 void	ft_init_philo(t_cfg *s)
 {
 	size_t	i;
 
-	i = 0;
-	s->philo = NULL;
-	s->philo = (t_philo *)malloc(sizeof(*(s->philo)) * \
-s->nb_philo);
+	i = -1;
+	s->philo = (t_philo *)malloc(sizeof(*(s->philo)) * s->nb_philo);
 	if (!s->philo)
-		ft_error_msg(ERROR_MALLOC_PHILO, NULL);
-	while (i < s->nb_philo)
+		ft_error_msg(ERROR_MALLOC_PHILO);
+	while (++i < s->nb_philo)
 	{
 		s->philo[i].id = i;
 		s->philo[i].eating = 0;
-		s->philo[i].l_fork = i;
-		s->philo[i].r_fork = (i + 1) % s->nb_philo;
 		s->philo[i].eat_count = 0;
 		s->philo[i].s = s;
-		i++;
+		s->philo[i].l_fork = &s->forks_mutex[i];
+		s->philo[i].r_fork = 0;
 	}
 }
 
@@ -56,144 +56,76 @@ void	ft_init_mutex(t_cfg *s)
 {
 	size_t	i;
 
-	i = 0;
-//	s->forks_mutex = (pthread_mutex_t *)malloc(sizeof(*(s->forks_mutex)) * \
-//s->nb_philo);
-//	if (!s->forks_mutex)
-//		ft_error_msg(ERROR_MALLOC_MUTEX, s);
-	while (i < s->nb_philo)
-	{	
-//		if (pthread_mutex_init(&s->forks_mutex[i], NULL) != 0)
-//			ft_error_msg(ERROR_FORKS_MUTEX, s);
-//		if (pthread_mutex_init(&s->philo[i].mutex, NULL) != 0)
-//			ft_error_msg(ERROR_MUTEX_MUTEX, s);
-		if (pthread_mutex_init(&s->philo[i].eating_mutex, NULL) != 0)
-			ft_error_msg(ERROR_EATING_MUTEX, s);
-		if (pthread_mutex_lock(&s->philo[i].eating_mutex) != 0)
-			ft_error_msg(ERROR_EATING_MUTEX_LOCK, s);
-		i++;
-	}
-//	if (pthread_mutex_init(&s->display_mutex, NULL) != 0)
-//		ft_error_msg(ERROR_DISPLAY_MUTEX, s);
-//	if (pthread_mutex_init(&s->dead_mutex, NULL) != 0)
-//		ft_error_msg(ERROR_DEAD_MUTEX, s);
-//	if (pthread_mutex_lock(&s->dead_mutex) != 0)
-//		ft_error_msg(ERROR_DEAD_MUTEX_LOCK, s);
+	s->forks_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * \
+			s->nb_philo);
+	if (!s->forks_mutex)
+		ft_error_msg(ERROR_MALLOC_FORKS_MUTEX);
+	i = -1;
+	while (++i < s->nb_philo)
+		if (pthread_mutex_init(&s->forks_mutex[i], NULL) != 0)
+			ft_error_msg(ERROR_FORKS_MUTEX);
+	s->dead_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	if (pthread_mutex_init(s->dead_mutex, NULL) != 0)
+		ft_error_msg(ERROR_DEAD_MUTEX);
 }
 
-void	ft_free_array(t_cfg *s)
+void	ft_create_thread(t_cfg *s)
 {
 	size_t	i;
 
-//	i = 0;
-	if (!s)
-		return ;
-//	if (s->forks_mutex)
-//	{
-//		while (i < s->nb_philo)
-//			pthread_mutex_destroy(&s->forks_mutex[i++]);
-//		free(s->forks_mutex);
-//	}
-	i = 0;
-	if (s->philo)
-	{
-		while (i < s->nb_philo)
-		{
-			printf("FREE\n");
-//			pthread_mutex_destroy(&s->philo[i].mutex);
-			pthread_mutex_destroy(&s->philo[i++].eating_mutex);
-		}
-		free (s->philo);
-	}
-}
-
-void	ft_destroy_mutex(t_cfg *s)
-{
-	pthread_mutex_destroy(&s->display_mutex);
-	pthread_mutex_destroy(&s->dead_mutex);
-}
-
-void	ft_create_threads(t_cfg *s)
-{
-	size_t		i;
-	pthread_t	tid;
-
-	i = 0;
+	i = -1;
+	
 	s->time = ft_time();
-	if (s->meals_required > 0)
+	while (++i < s->nb_philo)
 	{
-		if (pthread_create(&tid, NULL, &ft_meals_monitor, (void *)s) != 0)
-			ft_error_msg(ERROR_MEALS_MONITOR_CREATE, s);
-        pthread_detach(tid);
+		s->philo[i].start_time = s->time;
+		s->philo[i].meals = s->time;
 	}
-	i = 0;
-	while (i < s->nb_philo)
+	i = -1;
+	while (++i < s->nb_philo)
 	{
-		if (pthread_create(&tid, NULL, &ft_start_routine, \
-	(void *)&s->philo[i++]) != 0)
-			ft_error_msg(ERROR_START_ROUTINE_CREATE, s);
-		pthread_detach(tid);
-		usleep(100);
+		s->philo[i].r_fork = s->philo[(i + 1) % s->nb_philo].l_fork;
+		if (pthread_create(&s->philo[i].tid, NULL, &ft_start_routine, \
+					s) != 0)
+			ft_error_msg(ERROR_START_ROUTINE_CREATE);
 	}
-}
-
-void	*ft_meals_monitor(void *s)
-{
-	(void)s;
-	printf ("TEST\n");
-	t_cfg	*cfg;
-	size_t	i;
-	size_t	nb_meals;
-
-
-	cfg = (t_cfg *)s;
-	i = 0;
-	nb_meals = 0;
-	while (nb_meals < cfg->meals_required)
-	{
-		i = 0;
-		while (i < cfg->nb_philo)
-		{
-			pthread_mutex_lock(&cfg->philo[i].eating_mutex);
-			pthread_mutex_unlock(&cfg->philo[i].eating_mutex);
-			i++;
-		}
-		nb_meals++;
-	}
-//	pthread_mutex_unlock(&cfg->dead_mutex);
-	return (NULL);
+	s->ready = 1;
 }
 
 void	*ft_start_routine(void *s)
 {
-	t_philo	*philo;
-//	size_t	meals_eaten = 0;
+	t_cfg	*cfg;
 
-	philo = (t_philo *)s;
-
-//	while (meals_eaten < philo->s->meals_required)
-//	{
-//		// Le philosophe déverrouille son eating_mutex pour indiquer qu'il a mangé
-//		pthread_mutex_unlock(&philo->eating_mutex);
-//
-//		printf("Philosophe %d mange\n", philo->id);
-//		usleep(philo->s->time_to_eat * 1000); // Simuler le temps pour manger
-//
-//		// Verrouiller à nouveau le mutex pour attendre le prochain repas
-//		pthread_mutex_lock(&philo->eating_mutex);
-
-//		meals_eaten++;
-//	}
+	cfg = (t_cfg *)s;
+	while (!cfg->ready)
+		continue;
+	if (cfg->philo->id & 1)
+		ft_usleep(cfg->time_to_eat * 0.9 + 1);
+	while(!cfg->over)
+	{
+		printf("while\n");
+		ft_eat(cfg);
+	}
 	return (NULL);
 }
 
-uint64_t	ft_time(void)
+void	ft_eat(t_cfg *s)
 {
-	struct timeval	current_time;
+	pthread_mutex_lock(s->philo->l_fork);
+	printf ("TEST\n");
+	ft_display(s,FORK);
+	pthread_mutex_unlock(s->philo->l_fork);
 
-	gettimeofday(&current_time, NULL);
-	return (((uint64_t)(current_time.tv_sec) * 1000)
-		+ ((uint64_t)(current_time.tv_usec) / 1000));
+}
+
+void	ft_display(t_cfg *s, const char *str)
+{
+	//pthread_mutex_lock(s->dead_mutex);
+	printf ("s-time > %ld\n", ft_time());
+	printf ("start_time > %ld\n", s->philo->start_time);
+	printf ("%ldms %d %s\n", ft_time() - s->philo->start_time, s->philo->id, str);
+	//pthread_mutex_unlock(s->dead_mutex);*/
+
 }
 
 int	main(int argc, const char **argv)
@@ -203,13 +135,12 @@ int	main(int argc, const char **argv)
 
 	i = 0;
 	ft_parse_args(&s, argc, argv);
+	printf("parse ok\n");
 	ft_init_philo(&s);
+	printf("init_philo ok\n");
 	ft_init_mutex(&s);
-	ft_create_threads(&s);
-//	pthread_mutex_lock(&s.dead_mutex);
-//	pthread_mutex_unlock(&s.dead_mutex);
-	ft_free_array(&s);
-//	ft_destroy_mutex(&s);
+	printf("init_mutex ok\n");
+	ft_create_thread(&s);
+	printf("create_thread ok\n");
 	return (0);
 }
-

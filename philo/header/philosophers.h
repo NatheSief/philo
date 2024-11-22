@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/21 01:40:46 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/23 00:13:42 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define PHILOSOPHERS_H
 
 /*----------------------------------------------------------------------------*/
-/*							         INCLUDES                                 */
+/*			                     INCLUDES                                     */
 /*----------------------------------------------------------------------------*/
 
 # include <unistd.h>
@@ -26,50 +26,51 @@
 # include <sys/time.h>
 
 /*----------------------------------------------------------------------------*/
-/*									STRUCTURES								  */
+/*                               STRUCTURES	            	                  */
 /*----------------------------------------------------------------------------*/
 
 typedef struct s_cfg
 {
-	struct s_philo			*philo;
-	size_t					nb_philo;
-	uint64_t				time_to_die;
-	uint64_t				time_to_eat;
-	uint64_t				time_to_sleep;
-	uint64_t				time;
-	size_t					meals_required;
-	pthread_mutex_t			*forks_mutex;
-	pthread_mutex_t			display_mutex;
-	pthread_mutex_t			dead_mutex;
+	struct s_philo	*philo;
+	size_t			nb_philo;
+	uint64_t		time_to_die;
+	uint64_t		time_to_eat;
+	uint64_t		time_to_sleep;
+	uint64_t		over;
+	size_t			meals_required;
+	uint64_t		time;
+	size_t			ready;
+	pthread_mutex_t	*forks_mutex;
+	pthread_mutex_t	*dead_mutex;
 }	t_cfg;
 
 typedef struct s_philo
 {
-	t_cfg			*s;
 	int				id;
-	uint64_t		time_since_eat;
+	uint64_t		meals;
+	uint64_t		start_time;
 	int				eating;
-	uint64_t		time_limit;
 	int				eat_count;
-	int				l_fork;
-	int				r_fork;
-	pthread_mutex_t	mutex;
-	pthread_mutex_t	eating_mutex;
+	pthread_t		tid;
+	pthread_mutex_t	*l_fork;
+	pthread_mutex_t	*r_fork;
+	t_cfg			*s;
 }	t_philo;
 
 /*----------------------------------------------------------------------------*/
-/*						    		FUNCTIONS                                 */
+/*		                         FUNCTIONS                                    */
 /*----------------------------------------------------------------------------*/
 
-void		ft_error_msg(const char *msg, t_cfg *s);
+void		ft_error_msg(const char *msg);
 int			ft_atoi(const char *str);
 uint64_t	ft_time(void);
-void		ft_free_array(t_cfg *s);
-void		*ft_meals_monitor(void *s);
 void		*ft_start_routine(void *s);
+void		ft_eat(t_cfg *s);
+void		ft_display(t_cfg *s, const char *str);
+int			ft_usleep(uint64_t time);
 
 /*----------------------------------------------------------------------------*/
-/*							   	ERRORS_MESSAGES                               */
+/*			                   ERRORS_MESSAGES                                */
 /*----------------------------------------------------------------------------*/
 
 # define ERROR_ARGS 				"Error: Invalid number of arguments.\n"
@@ -79,7 +80,7 @@ and 200.\n"
 time_to_sleep must be at least 60ms.\n"
 # define ERROR_MALLOC_PHILO 		"Error: Memory allocation failed for \
 philosophers.\n"
-# define ERROR_MALLOC_MUTEX			"Error: Memory allocation failed for forks_\
+# define ERROR_MALLOC_FORKS_MUTEX	"Error: Memory allocation failed for forks_\
 mutex.\n"
 # define ERROR_FORKS_MUTEX			"Error: Failed to initialize forks_mutex.\n"
 # define ERROR_MUTEX_MUTEX			"Error: Failed to initialize mutex mutex.\n"
@@ -99,5 +100,7 @@ characters.\n"
 monitor.\n"
 # define ERROR_START_ROUTINE_CREATE	"Error: Failed to create thread ft_start_\
 routine.\n"
+
+# define FORK "has taken a fork"
 
 #endif
