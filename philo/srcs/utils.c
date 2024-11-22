@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:33:12 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/19 19:13:23 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/22 13:06:10 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,4 +55,13 @@ int	ft_atoi(const char *str)
 	if (str[i] != '\0')
 		ft_error_msg(ERROR_INVALID_CHARACTERS, NULL);
 	return ((int)(result));
+}
+
+uint64_t	ft_time(void)
+{
+	struct timeval	current_time;
+
+	gettimeofday(&current_time, NULL);
+	return (((uint64_t)(current_time.tv_sec) * 1000)
+		+ ((uint64_t)(current_time.tv_usec) / 1000));
 }

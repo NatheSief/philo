@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/21 19:36:38 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/21 23:57:47 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,26 +57,26 @@ void	ft_init_mutex(t_cfg *s)
 	size_t	i;
 
 	i = 0;
-	s->forks_mutex = (pthread_mutex_t *)malloc(sizeof(*(s->forks_mutex)) * \
-s->nb_philo);
-	if (!s->forks_mutex)
-		ft_error_msg(ERROR_MALLOC_MUTEX, s);
+//	s->forks_mutex = (pthread_mutex_t *)malloc(sizeof(*(s->forks_mutex)) * \
+//s->nb_philo);
+//	if (!s->forks_mutex)
+//		ft_error_msg(ERROR_MALLOC_MUTEX, s);
 	while (i < s->nb_philo)
 	{	
-		if (pthread_mutex_init(&s->forks_mutex[i], NULL) != 0)
-			ft_error_msg(ERROR_FORKS_MUTEX, s);
-		if (pthread_mutex_init(&s->philo[i].mutex, NULL) != 0)
-			ft_error_msg(ERROR_MUTEX_MUTEX, s);
+//		if (pthread_mutex_init(&s->forks_mutex[i], NULL) != 0)
+//			ft_error_msg(ERROR_FORKS_MUTEX, s);
+//		if (pthread_mutex_init(&s->philo[i].mutex, NULL) != 0)
+//			ft_error_msg(ERROR_MUTEX_MUTEX, s);
 		if (pthread_mutex_init(&s->philo[i].eating_mutex, NULL) != 0)
 			ft_error_msg(ERROR_EATING_MUTEX, s);
-//		if (pthread_mutex_lock(&s->philo[i].eating_mutex) != 0)
-//			ft_error_msg(ERROR_EATING_MUTEX_LOCK, s);
+		if (pthread_mutex_lock(&s->philo[i].eating_mutex) != 0)
+			ft_error_msg(ERROR_EATING_MUTEX_LOCK, s);
 		i++;
 	}
-	if (pthread_mutex_init(&s->display_mutex, NULL) != 0)
-		ft_error_msg(ERROR_DISPLAY_MUTEX, s);
-	if (pthread_mutex_init(&s->dead_mutex, NULL) != 0)
-		ft_error_msg(ERROR_DEAD_MUTEX, s);
+//	if (pthread_mutex_init(&s->display_mutex, NULL) != 0)
+//		ft_error_msg(ERROR_DISPLAY_MUTEX, s);
+//	if (pthread_mutex_init(&s->dead_mutex, NULL) != 0)
+//		ft_error_msg(ERROR_DEAD_MUTEX, s);
 //	if (pthread_mutex_lock(&s->dead_mutex) != 0)
 //		ft_error_msg(ERROR_DEAD_MUTEX_LOCK, s);
 }
@@ -85,22 +85,22 @@ void	ft_free_array(t_cfg *s)
 {
 	size_t	i;
 
-	i = 0;
+//	i = 0;
 	if (!s)
 		return ;
-	if (s->forks_mutex)
-	{
-		while (i < s->nb_philo)
-			pthread_mutex_destroy(&s->forks_mutex[i++]);
-		free(s->forks_mutex);
-	}
+//	if (s->forks_mutex)
+//	{
+//		while (i < s->nb_philo)
+//			pthread_mutex_destroy(&s->forks_mutex[i++]);
+//		free(s->forks_mutex);
+//	}
 	i = 0;
 	if (s->philo)
 	{
 		while (i < s->nb_philo)
 		{
 			printf("FREE\n");
-			pthread_mutex_destroy(&s->philo[i].mutex);
+//			pthread_mutex_destroy(&s->philo[i].mutex);
 			pthread_mutex_destroy(&s->philo[i++].eating_mutex);
 		}
 		free (s->philo);
@@ -124,8 +124,9 @@ void	ft_create_threads(t_cfg *s)
 	{
 		if (pthread_create(&tid, NULL, &ft_meals_monitor, (void *)s) != 0)
 			ft_error_msg(ERROR_MEALS_MONITOR_CREATE, s);
-		pthread_detach(tid);
+        pthread_detach(tid);
 	}
+	i = 0;
 	while (i < s->nb_philo)
 	{
 		if (pthread_create(&tid, NULL, &ft_start_routine, \
@@ -138,24 +139,27 @@ void	ft_create_threads(t_cfg *s)
 
 void	*ft_meals_monitor(void *s)
 {
+	(void)s;
 	printf ("TEST\n");
-//	t_cfg	*cfg;
-//	size_t	i;
-//	size_t	nb_meals;
+	t_cfg	*cfg;
+	size_t	i;
+	size_t	nb_meals;
 
 
-//	cfg = (t_cfg *)s;
-//	i = 0;
-//	nb_meals = 0;
-//	while (nb_meals < cfg->meals_required)
-//	{
-//		i = 0;
-//		while (i < cfg->nb_philo)
-//		{
-//			pthread_mutex_lock(&cfg->philo[i].eating_mutex);
-//			i++;
-//		}
-//	}
+	cfg = (t_cfg *)s;
+	i = 0;
+	nb_meals = 0;
+	while (nb_meals < cfg->meals_required)
+	{
+		i = 0;
+		while (i < cfg->nb_philo)
+		{
+			pthread_mutex_lock(&cfg->philo[i].eating_mutex);
+			pthread_mutex_unlock(&cfg->philo[i].eating_mutex);
+			i++;
+		}
+		nb_meals++;
+	}
 //	pthread_mutex_unlock(&cfg->dead_mutex);
 	return (NULL);
 }
@@ -195,7 +199,9 @@ uint64_t	ft_time(void)
 int	main(int argc, const char **argv)
 {
 	t_cfg	s;
+	size_t	i;
 
+	i = 0;
 	ft_parse_args(&s, argc, argv);
 	ft_init_philo(&s);
 	ft_init_mutex(&s);
@@ -206,3 +212,4 @@ int	main(int argc, const char **argv)
 //	ft_destroy_mutex(&s);
 	return (0);
 }
+
