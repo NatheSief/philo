@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/23 00:13:42 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/23 20:48:41 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,12 @@ typedef struct s_cfg
 	size_t			ready;
 	pthread_mutex_t	*forks_mutex;
 	pthread_mutex_t	*dead_mutex;
-	pthread_mutex_t *printf_mutex;
 }	t_cfg;
 
 typedef struct s_philo
 {
 	int				id;
+	int				nb;
 	uint64_t		meals;
 	uint64_t		start_time;
 	int				eating;
@@ -103,5 +103,6 @@ monitor.\n"
 routine.\n"
 
 # define FORK "has taken a fork"
+# define FORK "is eating"
 
 #endif

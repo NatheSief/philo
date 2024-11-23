@@ -6,7 +6,7 @@
 #    By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/02 09:45:51 by xlebecq           #+#    #+#              #
-#    Updated: 2024/11/22 13:09:11 by xlebecq          ###   ########.fr        #
+#    Updated: 2024/11/23 15:12:54 by xlebecq          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,8 @@ NAME = philo
 
 CC = clang
 
-C_FLAGS = -Wall -Wextra -Werror -g -fsanitize=thread
+C_FLAGS = -Wall -Wextra -Werror -g 
+C_FLAGS += -fsanitize=thread
 
 RM = rm -f
 
