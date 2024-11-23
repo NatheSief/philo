@@ -14,7 +14,7 @@ NAME = philo
 
 CC = clang
 
-C_FLAGS = -Wall -Wextra -Werror
+C_FLAGS = -Wall -Wextra -Werror -g -fsanitize=thread
 
 RM = rm -f
 

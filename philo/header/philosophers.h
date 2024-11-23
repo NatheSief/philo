@@ -42,6 +42,7 @@ typedef struct s_cfg
 	size_t			ready;
 	pthread_mutex_t	*forks_mutex;
 	pthread_mutex_t	*dead_mutex;
+	pthread_mutex_t *printf_mutex;
 }	t_cfg;
 
 typedef struct s_philo
