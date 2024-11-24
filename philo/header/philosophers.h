@@ -36,26 +36,26 @@ typedef struct s_cfg
 	uint64_t		time_to_die;
 	uint64_t		time_to_eat;
 	uint64_t		time_to_sleep;
-	uint64_t		over;
 	size_t			meals_required;
-	uint64_t		time;
+	uint64_t		beginning_time;
 	size_t			ready;
+	size_t			check_meals;
+	size_t			end;
 	pthread_mutex_t	*forks_mutex;
 	pthread_mutex_t	*dead_mutex;
 }	t_cfg;
 
 typedef struct s_philo
 {
-	int				id;
-	int				nb;
-	uint64_t		meals;
-	uint64_t		start_time;
-	int				eating;
-	int				eat_count;
-	pthread_t		tid;
-	pthread_mutex_t	*l_fork;
-	pthread_mutex_t	*r_fork;
-	t_cfg			*s;
+	size_t				id;
+	size_t				dead;
+	size_t				meals_count;
+	uint64_t			last_meal;
+	uint64_t			philo_start_time;
+	pthread_t			tid;
+	pthread_mutex_t			*l_fork;
+	pthread_mutex_t			*r_fork;
+	t_cfg				*s;
 }	t_philo;
 
 /*----------------------------------------------------------------------------*/
@@ -69,6 +69,10 @@ void		*ft_start_routine(void *s);
 void		ft_eat(t_cfg *s);
 void		ft_display(t_cfg *s, const char *str);
 int			ft_usleep(uint64_t time);
+void	ft_sleep(t_cfg *s);
+int	ft_dead(t_philo *philo);
+int	ft_count(t_philo *philo, size_t i);
+int	ft_print_dead(t_philo *philo);
 
 /*----------------------------------------------------------------------------*/
 /*			                   ERRORS_MESSAGES                                */
@@ -103,6 +107,9 @@ monitor.\n"
 routine.\n"
 
 # define FORK "has taken a fork"
-# define FORK "is eating"
+# define EAT "is eating"
+# define SLEEP "is sleeping"
+# define THINK "is thinking"
+# define DIE "died"
 
 #endif
