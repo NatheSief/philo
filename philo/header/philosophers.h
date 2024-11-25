@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/23 20:48:41 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/25 17:05:33 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,31 +31,30 @@
 
 typedef struct s_cfg
 {
-	struct s_philo	*philo;
-	size_t			nb_philo;
-	uint64_t		time_to_die;
-	uint64_t		time_to_eat;
-	uint64_t		time_to_sleep;
-	size_t			meals_required;
-	uint64_t		beginning_time;
-	size_t			ready;
-	size_t			check_meals;
-	size_t			end;
-	pthread_mutex_t	*forks_mutex;
-	pthread_mutex_t	*dead_mutex;
+	int					nb_philo;
+	int					time_to_die;
+	int					time_to_eat;
+	int					time_to_sleep;
+	int					meals_required;
+	int			beginning_time;
+	int					ready;
+	int					check_meals;
+	int					end;
+	pthread_mutex_t		*forks_mutex;
+	pthread_mutex_t		*dead_mutex;
 }	t_cfg;
 
 typedef struct s_philo
 {
-	size_t				id;
-	size_t				dead;
-	size_t				meals_count;
-	uint64_t			last_meal;
-	uint64_t			philo_start_time;
+	int					id;
+	int					dead;
+	int					meals_count;
+	int			last_meal;
+	int			philo_start_time;
 	pthread_t			tid;
 	pthread_mutex_t			*l_fork;
 	pthread_mutex_t			*r_fork;
-	t_cfg				*s;
+	t_cfg				*st;
 }	t_philo;
 
 /*----------------------------------------------------------------------------*/
@@ -64,15 +63,15 @@ typedef struct s_philo
 
 void		ft_error_msg(const char *msg);
 int			ft_atoi(const char *str);
-uint64_t	ft_time(void);
+int	ft_time(void);
 void		*ft_start_routine(void *s);
-void		ft_eat(t_cfg *s);
-void		ft_display(t_cfg *s, const char *str);
-int			ft_usleep(uint64_t time);
-void	ft_sleep(t_cfg *s);
-int	ft_dead(t_philo *philo);
-int	ft_count(t_philo *philo, size_t i);
-int	ft_print_dead(t_philo *philo);
+void		ft_eat(t_philo *philo);
+void		ft_display(t_philo *philo, char *str);
+int		ft_usleep(int time);
+void		ft_sleep(t_philo *s);
+int		ft_dead(t_philo *philo);
+int		ft_count(t_philo philo, int i);
+int		ft_print_dead(t_philo *philo);
 
 /*----------------------------------------------------------------------------*/
 /*			                   ERRORS_MESSAGES                                */
