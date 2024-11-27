@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:33:12 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/25 17:05:00 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/26 22:59:10 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ int	ft_usleep(int time)
 void	ft_display(t_philo *philo, char *str)
 {
 	pthread_mutex_lock(philo->st->dead_mutex);
-	if (philo->st->end)
+	if (ft_check_end(philo->st))
 	{
 		pthread_mutex_unlock(philo->st->dead_mutex);
 		return ;

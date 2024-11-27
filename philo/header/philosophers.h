@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 17:22:51 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/25 17:05:33 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/27 11:37:25 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ typedef struct s_cfg
 	int					ready;
 	int					check_meals;
 	int					end;
+	pthread_mutex_t		check_ready;
+	pthread_mutex_t		check_end;
 	pthread_mutex_t		*forks_mutex;
 	pthread_mutex_t		*dead_mutex;
 }	t_cfg;
@@ -72,6 +74,7 @@ void		ft_sleep(t_philo *s);
 int		ft_dead(t_philo *philo);
 int		ft_count(t_philo philo, int i);
 int		ft_print_dead(t_philo *philo);
+int	ft_check_end(t_cfg *s);
 
 /*----------------------------------------------------------------------------*/
 /*			                   ERRORS_MESSAGES                                */

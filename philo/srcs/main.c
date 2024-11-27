@@ -6,7 +6,7 @@
 /*   By: xlebecq <xlebecq@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 09:28:06 by xlebecq           #+#    #+#             */
-/*   Updated: 2024/11/25 17:17:51 by xlebecq          ###   ########.fr       */
+/*   Updated: 2024/11/27 12:09:42 by xlebecq          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ void	ft_init_mutex(t_cfg *s)
 	s->dead_mutex = malloc(sizeof(pthread_mutex_t));
 	if (pthread_mutex_init(s->dead_mutex, NULL) != 0)
 		ft_error_msg(ERROR_DEAD_MUTEX);
+	pthread_mutex_init(&s->check_end, NULL);
+	pthread_mutex_init(&s->check_ready, NULL);
 }
 
 void	ft_init_philo(t_philo *philo, t_cfg *s)
@@ -90,30 +92,54 @@ void	ft_create_thread(t_cfg *s, t_philo *philo)
 			ft_error_msg(ERROR_START_ROUTINE_CREATE);
 		i++;
 		printf("pthread create -> %d est cree\n", i);
+		usleep(200);
 	}
 	
 	i = 0;
 	s->beginning_time = ft_time();
 	while (i < s->nb_philo)
 	{
+		pthread_mutex_lock(&s->check_ready);
 		philo[i].philo_start_time = s->beginning_time;
+		pthread_mutex_unlock(&s->check_ready);
 		philo[i].last_meal = s->beginning_time;
 		i++;
 	}
+	pthread_mutex_lock(&s->check_ready);
 	s->ready = 1;
+	pthread_mutex_unlock(&s->check_ready);
 }
+int	ft_check_end(t_cfg *s)
+{
+	int i;
+	pthread_mutex_lock(&s->check_end);
+	i = s->end;
+	pthread_mutex_unlock(&s->check_end);
+	return (i);	
+}
+
 
 void	*ft_start_routine(void *structure)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)structure;
-	
+
+	//int is_ready = 0;
+	//while (!is_ready)
+	//{
+	//	pthread_mutex_lock(&philo->st->check_ready);
+	//	is_ready = philo->st->ready;
+	//	pthread_mutex_unlock(&philo->st->check_ready);
+		//if (!is_ready)
+		//	usleep(100);
+	//}
+
 	while (!philo->st->ready)
 		continue;
 	if (philo->id & 1)
 		ft_usleep(philo->st->time_to_eat * 0.9 + 1);
-	while(!philo->st->end)
+	while(!ft_check_end(philo->st))
 	{
 		ft_eat(philo);
 		ft_sleep(philo);
@@ -123,13 +149,23 @@ void	*ft_start_routine(void *structure)
 
 void	ft_eat(t_philo *philo)
 {
-	pthread_mutex_lock(philo->l_fork);
-	ft_display(philo, FORK);
-	pthread_mutex_lock(philo->r_fork);
-	ft_display(philo, FORK);
+	if (philo->id & 1)
+	{
+		pthread_mutex_lock(philo->l_fork);
+		ft_display(philo, FORK);
+		pthread_mutex_lock(philo->r_fork);
+		ft_display(philo, FORK);
+	}
+	else
+	{
+		pthread_mutex_lock(philo->r_fork);
+		ft_display(philo, FORK);
+		pthread_mutex_lock(philo->l_fork);
+		ft_display(philo, FORK);
+	}
 	philo->last_meal = ft_time();
-	ft_usleep(philo->st->time_to_eat);
 	ft_display(philo, EAT);
+	ft_usleep(philo->st->time_to_eat);
 	philo->meals_count++;
 	pthread_mutex_unlock(philo->l_fork);
 	pthread_mutex_unlock(philo->r_fork);
@@ -137,8 +173,8 @@ void	ft_eat(t_philo *philo)
 
 void	ft_sleep(t_philo *philo)
 {
-	ft_usleep(philo->st->time_to_sleep);
 	ft_display(philo, SLEEP);
+	ft_usleep(philo->st->time_to_sleep);
 	ft_display(philo, THINK);
 }
 
@@ -149,12 +185,16 @@ int	ft_ctrl_thread(t_cfg *s, t_philo *philo)
 	i = 0;
 	while (!s->ready)
 		continue;
-	while (!s->end)
+	while (!ft_check_end(s))
 	{
 		i = -1;
 		while (++i < s->nb_philo)
 			if (ft_dead(&philo[i]) || ft_count(philo[i], i))
+			{
+				pthread_mutex_lock(&s->check_end);
 				s->end = 1;
+				pthread_mutex_unlock(&s->check_end);
+			}
 	}
 	if (s->check_meals && philo[s->nb_philo -1].meals_count == s->meals_required)
 	{
@@ -191,7 +231,9 @@ int	ft_count(t_philo philo, int i)
 int	ft_print_dead(t_philo *philo)
 {
 	ft_display(philo, DIE);
+	pthread_mutex_lock(&philo->st->check_end);
 	philo->st->end = 1;
+	pthread_mutex_unlock(&philo->st->check_end);
 	philo->dead = 1;
 	pthread_mutex_unlock(philo->l_fork);
 	pthread_mutex_unlock(philo->r_fork);
@@ -210,6 +252,7 @@ static void	ft_finish_thread(t_cfg *s, t_philo *philo)
 	}
 	pthread_mutex_destroy(s->dead_mutex);
 	pthread_mutex_destroy(s->forks_mutex);
+	pthread_mutex_destroy(&s->check_end);
 	free(s->dead_mutex);
 	free(s->forks_mutex);
 	free(philo);
@@ -235,9 +278,9 @@ int	main(int argc, const char **argv)
 
 	ft_parse_args(&s, argc, argv);
 
-//	ft_init_mutex(&s);
+	ft_init_mutex(&s);
 
 	
-//	ft_malloc_philo(&s);
+	ft_malloc_philo(&s);
 	return (0);
 }
